@@ -9,7 +9,7 @@ col_logo, col_titulo = st.columns([1, 5])
 with col_logo:
     st.image("https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg", width=110)
 with col_titulo:
-    st.title("Lancamento Financeiro de OS")
+    st.title("Lançamentos Financeiros de OS")
     st.caption("SIGCF - Sistema Integrado de Gestao de Custos de Frota")
 
 st.divider()
