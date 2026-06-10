@@ -9,18 +9,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-MESES = [
-    "", "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
-    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
-]
-hoje = datetime.now()
-mes_ano = f"{MESES[hoje.month]} de {hoje.year}"
-
-st.markdown(f"""
+st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    :root {{
+    :root {
         --bg:        #0a0e0a;
         --panel:     #121a12;
         --border:    #2a3d2a;
@@ -29,37 +22,37 @@ st.markdown(f"""
         --text:      #d4e4c8;
         --text-dim:  #7d9170;
         --white:     #f0f4ec;
-    }}
+    }
 
-    #MainMenu, footer, header {{ visibility: hidden; }}
+    #MainMenu, footer, header { visibility: hidden; }
 
     [data-testid="stSidebar"],
     [data-testid="stSidebarCollapsedControl"],
-    [data-testid="collapsedControl"] {{
+    [data-testid="collapsedControl"] {
         display: none !important;
-    }}
+    }
 
     .stApp,
     [data-testid="stAppViewContainer"],
     section.main,
-    .main .block-container {{
+    .main .block-container {
         background-color: var(--bg) !important;
         color: var(--text);
         font-family: 'Inter', sans-serif !important;
         max-width: 100% !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
-    }}
+    }
 
-    .sv-header {{
+    .sv-header {
         display: flex;
         align-items: center;
         gap: 18px;
         padding: 8px 0 20px 0;
         border-bottom: 1px solid var(--border);
         margin-bottom: 20px;
-    }}
-    .sv-logo-wrap {{
+    }
+    .sv-logo-wrap {
         background: #ffffff;
         border-radius: 10px;
         padding: 8px;
@@ -69,9 +62,9 @@ st.markdown(f"""
         width: 72px;
         height: 72px;
         flex-shrink: 0;
-    }}
-    .sv-logo-wrap img {{ width: 56px; height: auto; }}
-    .sv-title {{
+    }
+    .sv-logo-wrap img { width: 56px; height: auto; }
+    .sv-title {
         font-size: 1.55rem;
         font-weight: 700;
         color: var(--accent) !important;
@@ -79,14 +72,14 @@ st.markdown(f"""
         text-transform: uppercase;
         margin: 0;
         line-height: 1.2;
-    }}
-    .sv-subtitle {{
+    }
+    .sv-subtitle {
         font-size: 0.82rem;
         color: var(--text-dim) !important;
         margin-top: 4px;
         letter-spacing: 0.02em;
-    }}
-    .sv-badge {{
+    }
+    .sv-badge {
         display: inline-block;
         background: #1a2e1a;
         border: 1px solid var(--border);
@@ -96,90 +89,90 @@ st.markdown(f"""
         border-radius: 20px;
         margin-left: auto;
         white-space: nowrap;
-    }}
+    }
 
-    .sv-section {{
+    .sv-section {
         display: flex;
         align-items: center;
         gap: 10px;
         margin: 20px 0 14px 0;
-    }}
-    .sv-section-bar {{
+    }
+    .sv-section-bar {
         width: 4px;
         height: 22px;
         background: var(--accent2);
         border-radius: 2px;
         flex-shrink: 0;
-    }}
-    .sv-section-text {{
+    }
+    .sv-section-text {
         font-size: 0.78rem;
         font-weight: 600;
         color: var(--text) !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin: 0;
-    }}
+    }
 
-    [data-testid="stMetric"] {{
+    [data-testid="stMetric"] {
         background-color: var(--panel) !important;
         border: 1px solid var(--border) !important;
         border-top: 3px solid var(--accent2) !important;
         border-radius: 10px !important;
         padding: 14px 16px !important;
-    }}
-    [data-testid="stMetricLabel"] {{
+    }
+    [data-testid="stMetricLabel"] {
         color: var(--text-dim) !important;
         font-size: 0.72rem !important;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-    }}
-    [data-testid="stMetricValue"] {{
+    }
+    [data-testid="stMetricValue"] {
         color: var(--white) !important;
         font-weight: 700 !important;
-    }}
+    }
 
-    div[data-testid="stForm"] {{
+    div[data-testid="stForm"] {
         background-color: var(--panel) !important;
         border: 1px solid var(--border) !important;
         border-radius: 12px !important;
         padding: 24px !important;
-    }}
+    }
 
     label, .stSelectbox label, .stTextInput label,
-    .stNumberInput label, .stDateInput label {{
+    .stNumberInput label, .stDateInput label {
         color: var(--text-dim) !important;
         font-size: 0.72rem !important;
         text-transform: uppercase;
         letter-spacing: 0.07em;
         font-weight: 500 !important;
-    }}
+    }
     .stTextInput input,
     .stNumberInput input,
     .stTextArea textarea,
-    div[data-testid="stDateInput"] input {{
+    div[data-testid="stDateInput"] input {
         background-color: var(--bg) !important;
         color: var(--text) !important;
         border: 1px solid var(--border) !important;
         border-radius: 6px !important;
-    }}
+    }
     div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] {{
+    div[data-baseweb="input"] {
         background-color: var(--bg) !important;
         border-color: var(--border) !important;
         color: var(--text) !important;
-    }}
+    }
 
-    h1, h2, h3, p {{ color: var(--text) !important; }}
-    .stCaption, small {{ color: var(--text-dim) !important; }}
-    hr {{ border-color: var(--border) !important; }}
+    h1, h2, h3, p { color: var(--text) !important; }
+    .stCaption, small { color: var(--text-dim) !important; }
+    hr { border-color: var(--border) !important; }
 
-    [data-testid="stDataFrame"] {{
+    [data-testid="stDataFrame"] {
         background-color: var(--panel) !important;
         border: 1px solid var(--border);
         border-radius: 10px;
-    }}
+    }
 
-    .stFormSubmitButton button {{
+    .stFormSubmitButton button {
         background-color: var(--accent2) !important;
         color: #0a0e0a !important;
         border: none !important;
@@ -188,10 +181,10 @@ st.markdown(f"""
         text-transform: uppercase;
         letter-spacing: 0.08em;
         font-size: 0.85rem !important;
-    }}
-    .stFormSubmitButton button:hover {{
+    }
+    .stFormSubmitButton button:hover {
         background-color: var(--accent) !important;
-    }}
+    }
 </style>
 
 <div class="sv-header">
@@ -200,7 +193,7 @@ st.markdown(f"""
     </div>
     <div>
         <p class="sv-title">Lancamentos Financeiros — OS Frota</p>
-        <p class="sv-subtitle">Controladoria &bull; Financeiro &bull; {mes_ano}</p>
+        <p class="sv-subtitle">Controladoria &bull; Gestao de Dados 2026</p>
     </div>
     <span class="sv-badge">SIGCF &bull; v1.0</span>
 </div>
