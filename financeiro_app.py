@@ -200,7 +200,7 @@ st.markdown(f"""
     </div>
     <div>
         <p class="sv-title">Lancamentos Financeiros — OS Frota</p>
-        <p class="sv-subtitle">Controladoria &bull; Financeiro &bull; {ano}</p>
+        <p class="sv-subtitle">Controladoria &bull; Financeiro &bull; {mes_ano}</p>
     </div>
     <span class="sv-badge">SIGCF &bull; v1.0</span>
 </div>
