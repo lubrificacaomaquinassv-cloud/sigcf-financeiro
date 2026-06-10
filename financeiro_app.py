@@ -3,7 +3,11 @@ import pandas as pd
 from datetime import datetime
 from supabase import create_client
 
-st.set_page_config(page_title="SIGCF - Lancamentos Financeiros", layout="wide")
+st.set_page_config(
+    page_title="SIGCF - Lancamentos Financeiros",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
 MESES = [
     "", "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
@@ -19,7 +23,6 @@ st.markdown(f"""
     :root {{
         --bg:        #0a0e0a;
         --panel:     #121a12;
-        --panel2:    #161f16;
         --border:    #2a3d2a;
         --accent:    #b8e986;
         --accent2:   #8fd44f;
@@ -30,6 +33,12 @@ st.markdown(f"""
 
     #MainMenu, footer, header {{ visibility: hidden; }}
 
+    [data-testid="stSidebar"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="collapsedControl"] {{
+        display: none !important;
+    }}
+
     .stApp,
     [data-testid="stAppViewContainer"],
     section.main,
@@ -37,15 +46,11 @@ st.markdown(f"""
         background-color: var(--bg) !important;
         color: var(--text);
         font-family: 'Inter', sans-serif !important;
+        max-width: 100% !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
     }}
 
-    [data-testid="stSidebar"],
-    [data-testid="stSidebar"] > div:first-child {{
-        background-color: var(--bg) !important;
-        border-right: 1px solid var(--border);
-    }}
-
-    /* ── Cabecalho estilo painel frota ── */
     .sv-header {{
         display: flex;
         align-items: center;
@@ -93,7 +98,6 @@ st.markdown(f"""
         white-space: nowrap;
     }}
 
-    /* ── Titulo de secao com barra verde ── */
     .sv-section {{
         display: flex;
         align-items: center;
@@ -116,7 +120,6 @@ st.markdown(f"""
         margin: 0;
     }}
 
-    /* ── Cards de metrica ── */
     [data-testid="stMetric"] {{
         background-color: var(--panel) !important;
         border: 1px solid var(--border) !important;
@@ -135,7 +138,6 @@ st.markdown(f"""
         font-weight: 700 !important;
     }}
 
-    /* ── Painel do formulario ── */
     div[data-testid="stForm"] {{
         background-color: var(--panel) !important;
         border: 1px solid var(--border) !important;
@@ -143,7 +145,6 @@ st.markdown(f"""
         padding: 24px !important;
     }}
 
-    /* ── Campos ── */
     label, .stSelectbox label, .stTextInput label,
     .stNumberInput label, .stDateInput label {{
         color: var(--text-dim) !important;
@@ -172,14 +173,12 @@ st.markdown(f"""
     .stCaption, small {{ color: var(--text-dim) !important; }}
     hr {{ border-color: var(--border) !important; }}
 
-    /* ── Tabelas ── */
     [data-testid="stDataFrame"] {{
         background-color: var(--panel) !important;
         border: 1px solid var(--border);
         border-radius: 10px;
     }}
 
-    /* ── Botao ── */
     .stFormSubmitButton button {{
         background-color: var(--accent2) !important;
         color: #0a0e0a !important;
@@ -193,16 +192,6 @@ st.markdown(f"""
     .stFormSubmitButton button:hover {{
         background-color: var(--accent) !important;
     }}
-
-    /* ── Sidebar titulo ── */
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {{
-        color: var(--accent) !important;
-        font-size: 0.8rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }}
 </style>
 
 <div class="sv-header">
@@ -210,8 +199,8 @@ st.markdown(f"""
         <img src="https://raw.githubusercontent.com/lubrificacaomaquinassv-cloud/sigcf-financeiro/main/logo_sv.png" alt="SV">
     </div>
     <div>
-        <p class="sv-title">Lancamentos Financeiros — Santa Virginia</p>
-        <p class="sv-subtitle">Controladoria &bull; Financeiro &bull; {mes_ano}</p>
+        <p class="sv-title">Lancamentos Financeiros — OS Frota</p>
+        <p class="sv-subtitle">Controladoria &bull; Financeiro &bull; {ano}</p>
     </div>
     <span class="sv-badge">SIGCF &bull; v1.0</span>
 </div>
@@ -248,21 +237,19 @@ opcoes_frota = {"(sem frota)": None}
 for f in frotas:
     opcoes_frota[f"{f['id_frota']} — {f.get('modelo', '')}"] = f["id_frota"]
 
-with st.sidebar:
-    st.markdown('<div class="sv-logo-wrap" style="margin:0 auto 16px auto;"><img src="https://raw.githubusercontent.com/lubrificacaomaquinassv-cloud/sigcf-financeiro/main/logo_sv.png" style="width:48px"></div>', unsafe_allow_html=True)
-    st.header("Ultimos Lancamentos")
-    if lancamentos:
-        df_side = pd.DataFrame(lancamentos)
-        cols = [c for c in ["data", "nfe", "item", "tipo_manutencao", "valor"] if c in df_side.columns]
-        st.dataframe(df_side[cols].head(15), use_container_width=True, hide_index=True)
-    else:
-        st.info("Nenhum lancamento ainda.")
-
-st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Resumo do dia</p></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="sv-section"><div class="sv-section-bar"></div>'
+    '<p class="sv-section-text">Resumo do dia</p></div>',
+    unsafe_allow_html=True,
+)
 
 fc1, fc2, fc3 = st.columns([2, 1, 1])
 with fc1:
-    filtro_data = st.date_input("Filtrar por data", value=datetime.now().date(), label_visibility="collapsed")
+    filtro_data = st.date_input(
+        "Filtrar por data",
+        value=datetime.now().date(),
+        label_visibility="collapsed",
+    )
 with fc2:
     slot_total = st.empty()
 with fc3:
@@ -274,7 +261,11 @@ total_dia = sum(float(l.get("valor") or 0) for l in lanc_dia)
 slot_total.metric("Total do dia", f"R$ {total_dia:,.2f}")
 slot_qtd.metric("Lancamentos", len(lanc_dia))
 
-st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Novo lancamento</p></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="sv-section"><div class="sv-section-bar"></div>'
+    '<p class="sv-section-text">Novo lancamento</p></div>',
+    unsafe_allow_html=True,
+)
 
 with st.form("form_lancamento", clear_on_submit=True):
     col1, col2, col3 = st.columns(3)
@@ -332,22 +323,38 @@ st.markdown(
 if lanc_dia:
     df_dia = pd.DataFrame(lanc_dia)
     rename = {
-        "data": "Data", "nfe": "NFE",
+        "data": "Data",
+        "nfe": "NFE",
         "id_fornecedor_sap": "Fornecedor SAP",
-        "item": "Item", "tipo_manutencao": "Tipo Manut.",
-        "valor": "Valor", "id_frota": "Frota", "observacao": "Obs",
+        "item": "Item",
+        "tipo_manutencao": "Tipo Manut.",
+        "valor": "Valor",
+        "id_frota": "Frota",
+        "observacao": "Obs",
     }
     cols_show = [c for c in rename if c in df_dia.columns]
-    st.dataframe(df_dia[cols_show].rename(columns=rename), use_container_width=True, hide_index=True)
+    st.dataframe(
+        df_dia[cols_show].rename(columns=rename),
+        use_container_width=True,
+        hide_index=True,
+    )
 
     rc1, rc2 = st.columns(2)
     with rc1:
-        st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Resumo por item</p></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="sv-section"><div class="sv-section-bar"></div>'
+            '<p class="sv-section-text">Resumo por item</p></div>',
+            unsafe_allow_html=True,
+        )
         resumo_item = df_dia.groupby("item")["valor"].sum().reset_index()
         resumo_item.columns = ["Item", "Total R$"]
         st.dataframe(resumo_item, use_container_width=True, hide_index=True)
     with rc2:
-        st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Resumo por tipo de manutencao</p></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="sv-section"><div class="sv-section-bar"></div>'
+            '<p class="sv-section-text">Resumo por tipo de manutencao</p></div>',
+            unsafe_allow_html=True,
+        )
         resumo_tipo = df_dia.groupby("tipo_manutencao")["valor"].sum().reset_index()
         resumo_tipo.columns = ["Tipo Manut.", "Total R$"]
         st.dataframe(resumo_tipo, use_container_width=True, hide_index=True)
