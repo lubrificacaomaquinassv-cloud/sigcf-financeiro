@@ -5,79 +5,217 @@ from supabase import create_client
 
 st.set_page_config(page_title="SIGCF - Lancamentos Financeiros", layout="wide")
 
-st.markdown("""
+MESES = [
+    "", "janeiro", "fevereiro", "marco", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+]
+hoje = datetime.now()
+mes_ano = f"{MESES[hoje.month]} de {hoje.year}"
+
+st.markdown(f"""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {{
+        --bg:        #0a0e0a;
+        --panel:     #121a12;
+        --panel2:    #161f16;
+        --border:    #2a3d2a;
+        --accent:    #b8e986;
+        --accent2:   #8fd44f;
+        --text:      #d4e4c8;
+        --text-dim:  #7d9170;
+        --white:     #f0f4ec;
+    }}
+
+    #MainMenu, footer, header {{ visibility: hidden; }}
+
     .stApp,
     [data-testid="stAppViewContainer"],
-    [data-testid="stHeader"],
     section.main,
-    .main .block-container {
-        background-color: #0d1117 !important;
-        color: #e6edf3;
-    }
+    .main .block-container {{
+        background-color: var(--bg) !important;
+        color: var(--text);
+        font-family: 'Inter', sans-serif !important;
+    }}
+
     [data-testid="stSidebar"],
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #0d1117 !important;
-        border-right: 1px solid #30363d;
-    }
-    [data-testid="stMetric"] {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d;
+    [data-testid="stSidebar"] > div:first-child {{
+        background-color: var(--bg) !important;
+        border-right: 1px solid var(--border);
+    }}
+
+    /* ── Cabecalho estilo painel frota ── */
+    .sv-header {{
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 8px 0 20px 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+    }}
+    .sv-logo-wrap {{
+        background: #ffffff;
         border-radius: 10px;
-        padding: 14px 16px;
-    }
-    [data-testid="stMetricLabel"] { color: #8b949e !important; }
-    [data-testid="stMetricValue"] { color: #e6edf3 !important; }
-    div[data-testid="stForm"] {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d !important;
-        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        flex-shrink: 0;
+    }}
+    .sv-logo-wrap img {{ width: 56px; height: auto; }}
+    .sv-title {{
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: var(--accent) !important;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.2;
+    }}
+    .sv-subtitle {{
+        font-size: 0.82rem;
+        color: var(--text-dim) !important;
+        margin-top: 4px;
+        letter-spacing: 0.02em;
+    }}
+    .sv-badge {{
+        display: inline-block;
+        background: #1a2e1a;
+        border: 1px solid var(--border);
+        color: var(--accent2);
+        font-size: 0.72rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-left: auto;
+        white-space: nowrap;
+    }}
+
+    /* ── Titulo de secao com barra verde ── */
+    .sv-section {{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0 14px 0;
+    }}
+    .sv-section-bar {{
+        width: 4px;
+        height: 22px;
+        background: var(--accent2);
+        border-radius: 2px;
+        flex-shrink: 0;
+    }}
+    .sv-section-text {{
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 0;
+    }}
+
+    /* ── Cards de metrica ── */
+    [data-testid="stMetric"] {{
+        background-color: var(--panel) !important;
+        border: 1px solid var(--border) !important;
+        border-top: 3px solid var(--accent2) !important;
+        border-radius: 10px !important;
+        padding: 14px 16px !important;
+    }}
+    [data-testid="stMetricLabel"] {{
+        color: var(--text-dim) !important;
+        font-size: 0.72rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }}
+    [data-testid="stMetricValue"] {{
+        color: var(--white) !important;
+        font-weight: 700 !important;
+    }}
+
+    /* ── Painel do formulario ── */
+    div[data-testid="stForm"] {{
+        background-color: var(--panel) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
         padding: 24px !important;
-    }
+    }}
+
+    /* ── Campos ── */
+    label, .stSelectbox label, .stTextInput label,
+    .stNumberInput label, .stDateInput label {{
+        color: var(--text-dim) !important;
+        font-size: 0.72rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        font-weight: 500 !important;
+    }}
     .stTextInput input,
     .stNumberInput input,
     .stTextArea textarea,
-    div[data-testid="stDateInput"] input {
-        background-color: #0d1117 !important;
-        color: #e6edf3 !important;
-        border: 1px solid #30363d !important;
+    div[data-testid="stDateInput"] input {{
+        background-color: var(--bg) !important;
+        color: var(--text) !important;
+        border: 1px solid var(--border) !important;
         border-radius: 6px !important;
-    }
+    }}
     div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] {
-        background-color: #0d1117 !important;
-        border-color: #30363d !important;
-        color: #e6edf3 !important;
-    }
-    h1, h2, h3, label, p { color: #e6edf3 !important; }
-    .stCaption, small { color: #8b949e !important; }
-    hr { border-color: #30363d !important; margin: 1rem 0; }
-    [data-testid="stDataFrame"] {
-        background-color: #161b22 !important;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-    }
-    .stFormSubmitButton button {
-        background-color: #238636 !important;
-        color: #ffffff !important;
+    div[data-baseweb="input"] {{
+        background-color: var(--bg) !important;
+        border-color: var(--border) !important;
+        color: var(--text) !important;
+    }}
+
+    h1, h2, h3, p {{ color: var(--text) !important; }}
+    .stCaption, small {{ color: var(--text-dim) !important; }}
+    hr {{ border-color: var(--border) !important; }}
+
+    /* ── Tabelas ── */
+    [data-testid="stDataFrame"] {{
+        background-color: var(--panel) !important;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }}
+
+    /* ── Botao ── */
+    .stFormSubmitButton button {{
+        background-color: var(--accent2) !important;
+        color: #0a0e0a !important;
         border: none !important;
         border-radius: 8px !important;
-        font-weight: 600 !important;
-    }
-    .stFormSubmitButton button:hover {
-        background-color: #2ea043 !important;
-    }
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.85rem !important;
+    }}
+    .stFormSubmitButton button:hover {{
+        background-color: var(--accent) !important;
+    }}
+
+    /* ── Sidebar titulo ── */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {{
+        color: var(--accent) !important;
+        font-size: 0.8rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }}
 </style>
+
+<div class="sv-header">
+    <div class="sv-logo-wrap">
+        <img src="https://raw.githubusercontent.com/lubrificacaomaquinassv-cloud/sigcf-financeiro/main/logo_sv.png" alt="SV">
+    </div>
+    <div>
+        <p class="sv-title">Lancamentos Financeiros — Santa Virginia</p>
+        <p class="sv-subtitle">Controladoria &bull; Financeiro &bull; {mes_ano}</p>
+    </div>
+    <span class="sv-badge">SIGCF &bull; v1.0</span>
+</div>
 """, unsafe_allow_html=True)
-
-col_logo, col_titulo = st.columns([1, 5])
-with col_logo:
-    st.image("https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg", width=110)
-with col_titulo:
-    st.title("Lancamentos Financeiros")
-    st.caption("SIGCF - Sistema Integrado de Gestao de Custos de Frota")
-
-st.divider()
 
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
@@ -111,8 +249,7 @@ for f in frotas:
     opcoes_frota[f"{f['id_frota']} — {f.get('modelo', '')}"] = f["id_frota"]
 
 with st.sidebar:
-    st.image("https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg", width=140)
-    st.divider()
+    st.markdown('<div class="sv-logo-wrap" style="margin:0 auto 16px auto;"><img src="https://raw.githubusercontent.com/lubrificacaomaquinassv-cloud/sigcf-financeiro/main/logo_sv.png" style="width:48px"></div>', unsafe_allow_html=True)
     st.header("Ultimos Lancamentos")
     if lancamentos:
         df_side = pd.DataFrame(lancamentos)
@@ -121,9 +258,11 @@ with st.sidebar:
     else:
         st.info("Nenhum lancamento ainda.")
 
+st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Resumo do dia</p></div>', unsafe_allow_html=True)
+
 fc1, fc2, fc3 = st.columns([2, 1, 1])
 with fc1:
-    filtro_data = st.date_input("Filtrar por data", value=datetime.now().date())
+    filtro_data = st.date_input("Filtrar por data", value=datetime.now().date(), label_visibility="collapsed")
 with fc2:
     slot_total = st.empty()
 with fc3:
@@ -135,8 +274,7 @@ total_dia = sum(float(l.get("valor") or 0) for l in lanc_dia)
 slot_total.metric("Total do dia", f"R$ {total_dia:,.2f}")
 slot_qtd.metric("Lancamentos", len(lanc_dia))
 
-st.divider()
-st.subheader("Novo Lancamento")
+st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Novo lancamento</p></div>', unsafe_allow_html=True)
 
 with st.form("form_lancamento", clear_on_submit=True):
     col1, col2, col3 = st.columns(3)
@@ -161,7 +299,7 @@ with st.form("form_lancamento", clear_on_submit=True):
     with col8:
         observacao = st.text_area("Observacao", height=68)
 
-    enviar = st.form_submit_button("SALVAR LANCAMENTO", use_container_width=True, type="primary")
+    enviar = st.form_submit_button("Salvar Lancamento", use_container_width=True, type="primary")
 
 if enviar:
     if valor <= 0:
@@ -185,37 +323,39 @@ if enviar:
         except Exception as e:
             st.error(f"Erro ao salvar: {e}")
 
-st.divider()
-st.subheader(f"Lancamentos em {filtro_data.strftime('%d/%m/%Y')}")
+st.markdown(
+    f'<div class="sv-section"><div class="sv-section-bar"></div>'
+    f'<p class="sv-section-text">Lancamentos em {filtro_data.strftime("%d/%m/%Y")}</p></div>',
+    unsafe_allow_html=True,
+)
 
 if lanc_dia:
     df_dia = pd.DataFrame(lanc_dia)
     rename = {
-        "data": "Data",
-        "nfe": "NFE",
+        "data": "Data", "nfe": "NFE",
         "id_fornecedor_sap": "Fornecedor SAP",
-        "item": "Item",
-        "tipo_manutencao": "Tipo Manut.",
-        "valor": "Valor",
-        "id_frota": "Frota",
-        "observacao": "Obs",
+        "item": "Item", "tipo_manutencao": "Tipo Manut.",
+        "valor": "Valor", "id_frota": "Frota", "observacao": "Obs",
     }
     cols_show = [c for c in rename if c in df_dia.columns]
     st.dataframe(df_dia[cols_show].rename(columns=rename), use_container_width=True, hide_index=True)
 
     rc1, rc2 = st.columns(2)
     with rc1:
-        st.subheader("Resumo por item")
+        st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Resumo por item</p></div>', unsafe_allow_html=True)
         resumo_item = df_dia.groupby("item")["valor"].sum().reset_index()
         resumo_item.columns = ["Item", "Total R$"]
         st.dataframe(resumo_item, use_container_width=True, hide_index=True)
     with rc2:
-        st.subheader("Resumo por tipo de manutencao")
+        st.markdown('<div class="sv-section"><div class="sv-section-bar"></div><p class="sv-section-text">Resumo por tipo de manutencao</p></div>', unsafe_allow_html=True)
         resumo_tipo = df_dia.groupby("tipo_manutencao")["valor"].sum().reset_index()
         resumo_tipo.columns = ["Tipo Manut.", "Total R$"]
         st.dataframe(resumo_tipo, use_container_width=True, hide_index=True)
 else:
     st.info("Nenhum lancamento nesta data.")
 
-st.divider()
-st.caption("SIGCF | Lancamentos Financeiros | Nucleo de Controladoria SV")
+st.markdown(
+    '<p style="color:#7d9170;font-size:0.75rem;text-align:center;margin-top:24px;">'
+    'SIGCF | Lancamentos Financeiros | Nucleo de Controladoria SV</p>',
+    unsafe_allow_html=True,
+)
