@@ -170,7 +170,7 @@ col_logo, col_titulo, col_acao = st.columns([1.1, 5, 1])
 with col_logo:
     st.markdown(logo_html(118), unsafe_allow_html=True)
 with col_titulo:
-    st.title("Lançamentos Financeiros — OS Frota")
+    st.title("LANÇAMENTOS FINANCEIROS — OS FROTA")
     st.caption("SIGCF — CONTROLADORIA · GESTÃO E ANÁLISE DE DADOS")
 with col_acao:
     if st.button("🔄 Atualizar"):
