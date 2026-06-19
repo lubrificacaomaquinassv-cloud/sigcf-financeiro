@@ -4,7 +4,7 @@ from datetime import datetime, date
 from supabase import create_client
 
 st.set_page_config(
-    page_title="Lançamentos Financeiros - SIGCF",
+    page_title="LANÇAMENTOS FINANCEIROS - SIGCF",
     page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -15,7 +15,7 @@ from sigcf_auth import exigir_acesso, logo_html
 ITENS_FINANCEIRO = ["PECAS", "M.O.", "M.O. OPERADOR", "DIESEL", "OUTROS"]
 TIPOS_MANUTENCAO = ["HIDRAULICO", "ELETRICO", "MOTOR", "TDP", "OUTROS"]
 
-exigir_acesso("Lançamentos Financeiros — OS Frota")
+exigir_acesso("LANÇAMENTOS FINANCEIROS — OS Frota")
 
 st.markdown("""
 <style>
@@ -171,7 +171,7 @@ with col_logo:
     st.markdown(logo_html(118), unsafe_allow_html=True)
 with col_titulo:
     st.title("Lançamentos Financeiros — OS Frota")
-    st.caption("SIGCF — Controladoria · Gestão de Dados 2026")
+    st.caption("SIGCF — CONTROLADORIA · GESTÃO E ANÁLISE DE DADOS")
 with col_acao:
     if st.button("🔄 Atualizar"):
         st.cache_data.clear()
